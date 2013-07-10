@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -cp "../lib/*:." sensingprovinciawifi.SensingProvinciaWifi
+java -cp "../lib/tinyos/*:../lib/*:." sensingprovinciawifi.SensingProvinciaWifi $1

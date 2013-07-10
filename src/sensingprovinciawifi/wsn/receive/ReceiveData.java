@@ -1,9 +1,11 @@
 package sensingprovinciawifi.wsn.receive;
+
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 
 import org.apache.log4j.Logger;
+
 
 import net.tinyos.packet.*;
 import net.tinyos.util.*;
@@ -36,7 +38,7 @@ public class ReceiveData implements Runnable {
 		    System.exit(0);
 		}
 		else
-			logger.error("Connection established with "+ reader.getName() +".");
+			logger.info("Connection established with "+ reader.getName() +".");
 	}
 	
 	public static void receive()
@@ -76,11 +78,12 @@ public class ReceiveData implements Runnable {
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		
-		USBconnection(param[0]);
+		String source = "serial@/dev/ttyUSB0:telos";
+		if(param.length > 0) {
+			source = param[0];
+		}
+		USBconnection(source);
 		receive();
-		
 	}
 }
 
