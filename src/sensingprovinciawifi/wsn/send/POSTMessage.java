@@ -1,4 +1,4 @@
-package sensingprovinciawifi.send;
+package sensingprovinciawifi.wsn.send;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,9 +10,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import sensingprovinciawifi.connect.Connect;
+import org.apache.log4j.Logger;
+
+import sensingprovinciawifi.core.WifiConnection;
 
 public class POSTMessage implements Message {
+	
+	private Logger logger = Logger.getLogger(getClass());
 
 	private static HttpURLConnection connectionToDb;
 	private static HashMap<String,Integer> data;	
@@ -30,7 +34,7 @@ public class POSTMessage implements Message {
 		
 		while(t.hasNext())
 		{
-			connectionToDb=Connect.connectToServer();
+			connectionToDb=WifiConnection.connectToServer();
 			OutputStreamWriter forward = new OutputStreamWriter(connectionToDb.getOutputStream());
 			
 			String send=URLEncoder.encode("time", "UTF-8") + "=" + URLEncoder.encode(t.next(), "UTF-8");
@@ -43,7 +47,7 @@ public class POSTMessage implements Message {
 			String input="";
 			
 	        while ((input = in.readLine()) != null)
-				System.out.println(input);
+	        	logger.info(input);
 			
 			in.close();
 		}

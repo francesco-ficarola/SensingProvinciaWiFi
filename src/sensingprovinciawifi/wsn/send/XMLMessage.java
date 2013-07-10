@@ -1,4 +1,4 @@
-package sensingprovinciawifi.send;
+package sensingprovinciawifi.wsn.send;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -20,13 +20,16 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import sensingprovinciawifi.connect.Connect;
+import sensingprovinciawifi.core.WifiConnection;
 
 public class XMLMessage implements Message {
 
+	private Logger logger = Logger.getLogger(getClass());
+	
 	private static HashMap<String,Integer> data;
 	private static HttpURLConnection connectionToDb;
 	private static File f=new File("xmldata.xml");
@@ -34,7 +37,7 @@ public class XMLMessage implements Message {
 	public XMLMessage(HashMap<String,Integer> d) throws IOException
 	{
 		data=d;
-		connectionToDb= Connect.connectToServer();
+		connectionToDb= WifiConnection.connectToServer();
 		createxml();
 	}
 	
@@ -109,7 +112,7 @@ public class XMLMessage implements Message {
 		String input="";
 		
         while ((input = in.readLine()) != null)
-			System.out.println(input);
+			logger.info(input);
 		
 		in.close();
 	}

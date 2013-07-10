@@ -1,13 +1,17 @@
-package sensingprovinciawifi.receive;
+package sensingprovinciawifi.wsn.receive;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
+
+import org.apache.log4j.Logger;
 
 import net.tinyos.packet.*;
 import net.tinyos.util.*;
 
 public class ReceiveData implements Runnable {
 
+	private static Logger logger = Logger.getLogger(ReceiveData.class);
+	
 	private static PacketSource reader;
 	private static Data data;
 	private String[] param;
@@ -28,11 +32,11 @@ public class ReceiveData implements Runnable {
 		
 		if (reader == null) 
 		{
-		    System.err.println("Invalid packet source (check your MOTECOM environment variable)");
+		    logger.error("Invalid packet source (check your MOTECOM environment variable)");
 		    System.exit(0);
 		}
 		else
-			System.out.println("Connection established with "+ reader.getName() +".");
+			logger.error("Connection established with "+ reader.getName() +".");
 	}
 	
 	public static void receive()
@@ -66,7 +70,7 @@ public class ReceiveData implements Runnable {
 			  }
 			}
 			catch (IOException e) {
-			    System.err.println("Error on " + reader.getName() + ": " + e);
+				logger.error("Error on " + reader.getName() + ": " + e);
 			}
 	}
 

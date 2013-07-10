@@ -1,11 +1,15 @@
-package sensingprovinciawifi.send;
+package sensingprovinciawifi.wsn.send;
 import java.util.HashMap;
 
-import sensingprovinciawifi.receive.Data;
+import org.apache.log4j.Logger;
+
+import sensingprovinciawifi.wsn.receive.Data;
 
 
 public class Forward implements Runnable {
 
+	private static Logger logger = Logger.getLogger(Forward.class);
+	
 	private static Data data;
 	
 	public Forward(Data d) 
@@ -22,7 +26,7 @@ public class Forward implements Runnable {
 			try {
 				Thread.sleep(10000);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 			
 			HashMap<String,Integer> values= data.get();
@@ -36,8 +40,7 @@ public class Forward implements Runnable {
 				msg.send();
 				
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage(), e);
 			}
 		}
 	}

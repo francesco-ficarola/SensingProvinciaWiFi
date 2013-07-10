@@ -1,4 +1,4 @@
-package sensingprovinciawifi.send;
+package sensingprovinciawifi.wsn.send;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -6,12 +6,16 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.util.HashMap;
 
-import sensingprovinciawifi.connect.Connect;
+import org.apache.log4j.Logger;
+
+import sensingprovinciawifi.core.WifiConnection;
 
 import com.google.gson.Gson;
 
 
 public class JSONMessage implements Message {
+	
+	private Logger logger = Logger.getLogger(getClass());
 
 	private HashMap<String,Integer> data;
 	private static HttpURLConnection connectionToDb;
@@ -19,7 +23,7 @@ public class JSONMessage implements Message {
 	public JSONMessage(HashMap<String,Integer> d) throws IOException 
 	{
 		data=d;
-		connectionToDb=Connect.connectToServer();
+		connectionToDb=WifiConnection.connectToServer();
 	}
 	
 	@Override
@@ -37,7 +41,7 @@ public class JSONMessage implements Message {
 		String input="";
 		
         while ((input = in.readLine()) != null)
-			System.out.println(input);
+			logger.info(input);
 		
 		in.close();
 	}
