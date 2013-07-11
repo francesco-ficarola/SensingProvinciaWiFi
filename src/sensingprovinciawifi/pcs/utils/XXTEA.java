@@ -1,175 +1,159 @@
+/**
+ * Copyright (C) 2011 Ovea <dev@ovea.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package sensingprovinciawifi.pcs.utils;
-public final class XXTEA 
-{
 
-    private static final int delta = 0x9E3779B9;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 
-    private XXTEA() {}
+/**
+ * http://en.wikipedia.org/wiki/XXTEA
+ *
+ * @author Mathieu Carbou (mathieu.carbou@gmail.com)
+ */
+public final class XXTEA {
 
-    private static final int MX(int sum, int y, int z, int p, int e, int[] k) 
-    {
-        return (z >>> 5 ^ y << 2) + (y >>> 3 ^ z << 4) ^ (sum ^ y) + (k[p & 3 ^ e] ^ z);
-    }
+	private static final int DELTA = 0x9e3779b9;
 
-    /**
-     * Encrypt data with key.
-     *
-     * @param data
-     * @param key
-     * @return
-     */
-    public static final byte[] encrypt(byte[] data, byte[] key) 
-    {
-        if (data.length == 0) {
-            return data;
-        }
-        return toByteArray(
-                encrypt(toIntArray(data, true), toIntArray(key, false)), false);
-    }
+	public static IntBuffer encryptInPlace(IntBuffer data, IntBuffer key) {
+		if (key.limit() != 4) {
+			throw new IllegalArgumentException("XXTEA needs a 128-bits key");
+		}
+		if (data.limit() < 2) {
+			return data;
+		}
+		int n = data.limit(),
+				p,
+				rounds = 6 + 52 / data.limit(),
+				e,
+				y,
+				sum = 0;
+		int z = data.get(n - 1);
+		do {
+			sum += DELTA;
+			e = (sum >>> 2) & 3;
+			for (p = 0; p < n - 1; p++) {
+				y = data.get(p + 1);
+				z = data.get(p) + (((z >>> 5 ^ y << 2) + (y >>> 3 ^ z << 4)) ^ ((sum ^ y) + (key.get((p & 3) ^ e) ^ z)));
+				data.put(p, z);
+			}
+			y = data.get(0);
+			z = data.get(n - 1) + (((z >>> 5 ^ y << 2) + (y >>> 3 ^ z << 4)) ^ ((sum ^ y) + (key.get((p & 3) ^ e) ^ z)));
+			data.put(p, z);
+		} while (--rounds > 0);
+		data.position(0);
+		return data;
+	}
 
-    /**
-     * Decrypt data with key.
-     *
-     * @param data
-     * @param key
-     * @return
-     */
-    public static final byte[] decrypt(byte[] data, byte[] key) 
-    {
-        if (data.length == 0) {
-            return data;
-        }
-        return toByteArray(
-                decrypt(toIntArray(data, false), toIntArray(key, false)), true);
-    }
+	public static int[] encryptInPlace(int[] data, int[] key) {
+		encryptInPlace(IntBuffer.wrap(data), IntBuffer.wrap(key));
+		return data;
+	}
 
-    /**
-     * Encrypt data with key.
-     *
-     * @param v
-     * @param k
-     * @return
-     */
-    private static final int[] encrypt(int[] v, int[] k) 
-    {
-        int n = v.length - 1;
+	public static byte[] encryptInPlace(byte[] data, byte[] key) {
+		encryptInPlace(ByteBuffer.wrap(data), ByteBuffer.wrap(key));
+		return data;
+	}
 
-        if (n < 1) {
-            return v;
-        }
-        if (k.length < 4) {
-            int[] key = new int[4];
+	public static ByteBuffer encryptInPlace(ByteBuffer data, ByteBuffer key) {
+		encryptInPlace(data.asIntBuffer(), key.asIntBuffer());
+		return data;
+	}
 
-            System.arraycopy(k, 0, key, 0, k.length);
-            k = key;
-        }
-        int z = v[n], y = v[0], sum = 0, e;
-        int p, q = 6 + 52 / (n + 1);
+	public static IntBuffer encrypt(IntBuffer data, IntBuffer key) {
+		int[] copy = new int[data.limit() - data.position()];
+		data.get(copy);
+		return encryptInPlace(IntBuffer.wrap(copy), key);
+	}
 
-        while (q-- > 0) {
-            sum = sum + delta;
-            e = sum >>> 2 & 3;
-            for (p = 0; p < n; p++) {
-                y = v[p + 1];
-                z = v[p] += MX(sum, y, z, p, e, k);
-            }
-            y = v[0];
-            z = v[n] += MX(sum, y, z, p, e, k);
-        }
-        return v;
-    }
+	public static int[] encrypt(int[] data, int[] key) {
+		return encrypt(IntBuffer.wrap(data), IntBuffer.wrap(key)).array();
+	}
 
-    /**
-     * Decrypt data with key.
-     *
-     * @param v
-     * @param k
-     * @return
-     */
-    private static final int[] decrypt(int[] v, int[] k) 
-    {
-        int n = v.length - 1;
+	public static ByteBuffer encrypt(ByteBuffer data, ByteBuffer key) {
+		byte[] copy = new byte[data.limit() - data.position()];
+		data.get(copy);
+		return encryptInPlace(ByteBuffer.wrap(copy), key);
+	}
 
-        if (n < 1) {
-            return v;
-        }
-        if (k.length < 4) {
-            int[] key = new int[4];
+	public static byte[] encrypt(byte[] data, byte[] key) {
+		return encrypt(ByteBuffer.wrap(data), ByteBuffer.wrap(key)).array();
+	}
 
-            System.arraycopy(k, 0, key, 0, k.length);
-            k = key;
-        }
-        int z = v[n], y = v[0], sum, e;
-        int p, q = 6 + 52 / (n + 1);
+	public static IntBuffer decryptInPlace(IntBuffer data, IntBuffer key) {
+		if (key.limit() != 4) {
+			throw new IllegalArgumentException("XXTEA needs a 128-bits key");
+		}
+		if (data.limit() < 2) {
+			return data;
+		}
+		int z,
+		p,
+		e,
+		y = data.get(0),
+		sum = (6 + 52 / data.limit()) * DELTA,
+		l = data.limit();
+		do {
+			e = (sum >>> 2) & 3;
+			for (p = data.limit() - 1; p > 0; p--) {
+				z = data.get(p - 1);
+				y = data.get(p) - (((z >>> 5 ^ y << 2) + (y >>> 3 ^ z << 4)) ^ ((sum ^ y) + (key.get((p & 3) ^ e) ^ z)));
+				data.put(p, y);
+			}
+			z = data.get(l - 1);
+			y = data.get(0) - (((z >>> 5 ^ y << 2) + (y >>> 3 ^ z << 4)) ^ ((sum ^ y) + (key.get((p & 3) ^ e) ^ z)));
+			data.put(0, y);
+		} while ((sum -= DELTA) != 0);
+		data.position(0);
+		return data;
+	}
 
-        sum = q * delta;
-        while (sum != 0) {
-            e = sum >>> 2 & 3;
-            for (p = n; p > 0; p--) {
-                z = v[p - 1];
-                y = v[p] -= MX(sum, y, z, p, e, k);
-            }
-            z = v[n];
-            y = v[0] -= MX(sum, y, z, p, e, k);
-            sum = sum - delta;
-        }
-        return v;
-    }
+	public static int[] decryptInPlace(int[] data, int[] key) {
+		decryptInPlace(IntBuffer.wrap(data), IntBuffer.wrap(key));
+		return data;
+	}
 
-    /**
-     * Convert byte array to int array.
-     *
-     * @param data
-     * @param includeLength
-     * @return
-     */
-    private static final int[] toIntArray(byte[] data, boolean includeLength) 
-    {
-        int n = (((data.length & 3) == 0)
-                ? (data.length >>> 2)
-                : ((data.length >>> 2) + 1));
-        int[] result;
+	public static byte[] decryptInPlace(byte[] data, byte[] key) {
+		decryptInPlace(ByteBuffer.wrap(data), ByteBuffer.wrap(key));
+		return data;
+	}
 
-        if (includeLength) {
-            result = new int[n + 1];
-            result[n] = data.length;
-        }
-        else {
-            result = new int[n];
-        }
-        n = data.length;
-        for (int i = 0; i < n; i++) {
-            result[i >>> 2] |= (0x000000ff & data[i]) << ((i & 3) << 3);
-        }
-        return result;
-    }
+	public static ByteBuffer decryptInPlace(ByteBuffer data, ByteBuffer key) {
+		decryptInPlace(data.asIntBuffer(), key.asIntBuffer());
+		return data;
+	}
 
-    /**
-     * Convert int array to byte array.
-     *
-     * @param data
-     * @param includeLength
-     * @return
-     */
-    private static final byte[] toByteArray(int[] data, boolean includeLength) 
-    {
-        int n = data.length << 2;
+	public static IntBuffer decrypt(IntBuffer data, IntBuffer key) {
+		int[] copy = new int[data.limit() - data.position()];
+		data.get(copy);
+		return decryptInPlace(IntBuffer.wrap(copy), key);
+	}
 
-        if (includeLength) {
-            int m = data[data.length - 1];
+	public static int[] decrypt(int[] data, int[] key) {
+		return decrypt(IntBuffer.wrap(data), IntBuffer.wrap(key)).array();
+	}
 
-            if (m > n) {
-                return null;
-            }
-            else {
-                n = m;
-            }
-        }
-        byte[] result = new byte[n];
+	public static ByteBuffer decrypt(ByteBuffer data, ByteBuffer key) {
+		byte[] copy = new byte[data.limit() - data.position()];
+		data.get(copy);
+		return decryptInPlace(ByteBuffer.wrap(copy), key);
+	}
 
-        for (int i = 0; i < n; i++) {
-            result[i] = (byte) ((data[i >>> 2] >>> ((i & 3) << 3)) & 0xff);
-        }
-        return result;
-    }
+	public static byte[] decrypt(byte[] data, byte[] key) {
+		return decrypt(ByteBuffer.wrap(data), ByteBuffer.wrap(key)).array();
+	}
+
 }

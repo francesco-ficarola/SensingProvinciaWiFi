@@ -9,7 +9,9 @@ import java.util.Arrays;
 import org.apache.log4j.Logger;
 
 import sensingprovinciawifi.core.WifiConnection;
+import sensingprovinciawifi.pcs.utils.Functions;
 import sensingprovinciawifi.pcs.utils.PcsConstants;
+import sensingprovinciawifi.pcs.utils.XXTEA;
 
 public class PcsProxy implements Runnable {
 	
@@ -45,10 +47,32 @@ public class PcsProxy implements Runnable {
 			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 			try {
 				serverSocket.receive(receivePacket);
-				byte[] data = receivePacket.getData();
-				logger.info(Arrays.toString(data));
+				byte[] rawDataPacket = receivePacket.getData();
+				logger.info(Arrays.toString(rawDataPacket));
 				
-				//TODO: byte array parsing
+				// First 16th bytes - Reader data
+				short eCrc = Functions.byteArraytoShort(new byte[] {rawDataPacket[0], rawDataPacket[1]});
+				byte eProto = rawDataPacket[2];
+				byte eInterface = rawDataPacket[3];
+				short eReader_id = Functions.byteArraytoShort(new byte[] {rawDataPacket[4], rawDataPacket[5]});
+				short eSize = Functions.byteArraytoShort(new byte[] {rawDataPacket[6], rawDataPacket[7]});
+				int eSequence = Functions.byteArraytoInt(new byte[] {rawDataPacket[8], rawDataPacket[9], rawDataPacket[10], rawDataPacket[11]});
+				int eTimestamp = Functions.byteArraytoInt(new byte[] {rawDataPacket[12], rawDataPacket[13], rawDataPacket[14], rawDataPacket[15]});
+				logger.info(eCrc + ", " + eProto + ", " + eInterface + ", " + eReader_id + ", " + eSize + ", " + eSequence + ", " + eTimestamp);
+				
+				// Second 16th bytes - Payload encrypted by XXTEA
+				byte[] encryptedPayload = Arrays.copyOfRange(rawDataPacket, 16, rawDataPacket.length - 1);
+				byte[] decryptedPayload = XXTEA.decrypt(encryptedPayload, Functions.hexToByteArray(PcsConstants.XXTEA_KEY));
+				logger.info(Arrays.toString(decryptedPayload));
+				
+				byte proto = decryptedPayload[0];
+				int time = Functions.byteArraytoInt(new byte[] {decryptedPayload[1], decryptedPayload[2], decryptedPayload[3], decryptedPayload[4]});
+				int seq = Functions.byteArraytoInt(new byte[] {decryptedPayload[5], decryptedPayload[6], decryptedPayload[7], decryptedPayload[8]});
+				short from = Functions.byteArraytoShort(new byte[] {decryptedPayload[9], decryptedPayload[10]});
+				short data = Functions.byteArraytoShort(new byte[] {decryptedPayload[11], decryptedPayload[12]});
+				byte prop = decryptedPayload[13];
+				short crc = Functions.byteArraytoShort(new byte[] {decryptedPayload[14], decryptedPayload[15]});
+				logger.info(proto + ", " + time + ", " + seq + ", " + from + ", " + data + ", " + prop + ", " + crc);
 				
 				//TODO: sending data
 				while(!WifiConnection.connectToWifi());
