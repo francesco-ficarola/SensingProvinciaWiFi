@@ -4,10 +4,10 @@ import java.io.*;
 
 import org.apache.log4j.Logger;
 
+import sensingprovinciawifi.core.Forward;
 import sensingprovinciawifi.core.WifiConnection;
 import sensingprovinciawifi.wsn.receive.Data;
 import sensingprovinciawifi.wsn.receive.ReceiveData;
-import sensingprovinciawifi.wsn.send.Forward;
 
 
 public class WsnProxy implements Runnable {
