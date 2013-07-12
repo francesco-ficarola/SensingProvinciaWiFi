@@ -4,14 +4,19 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
 import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
+import sensingprovinciawifi.core.Forward;
 import sensingprovinciawifi.core.WifiConnection;
 import sensingprovinciawifi.pcs.utils.Functions;
 import sensingprovinciawifi.pcs.utils.PcsConstants;
 import sensingprovinciawifi.pcs.utils.XXTEA;
+import sensingprovinciawifi.wsn.receive.Data;
 
 public class PcsProxy implements Runnable {
 	
@@ -43,6 +48,9 @@ public class PcsProxy implements Runnable {
 		}
 		
 		byte[] receiveData = new byte[PcsConstants.PCS_PACKET_SIZE];
+		Data d = new Data();
+		new Forward(d);
+		
 		while(true) {
 			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 			try {
@@ -61,8 +69,20 @@ public class PcsProxy implements Runnable {
 				logger.info(eCrc + ", " + eProto + ", " + eInterface + ", " + eReader_id + ", " + eSize + ", " + eSequence + ", " + eTimestamp);
 				
 				// Second 16th bytes - Payload encrypted by XXTEA
-				byte[] encryptedPayload = Arrays.copyOfRange(rawDataPacket, 16, rawDataPacket.length - 1);
-				byte[] decryptedPayload = XXTEA.decrypt(encryptedPayload, Functions.hexToByteArray(PcsConstants.XXTEA_KEY));
+				byte[] encryptedPayload = Arrays.copyOfRange(rawDataPacket, 16, rawDataPacket.length);
+				
+//				ByteBuffer byteBuffer = ByteBuffer.allocate(PcsConstants.XXTEA_KEY.length * 4);
+//				IntBuffer intBuffer = byteBuffer.asIntBuffer();
+//				int[] intKey = new int[4];
+//				for(int i=0; i<4; i++) {
+//					intKey[i] = (int)PcsConstants.XXTEA_KEY[i];
+//				}
+//				
+//				intBuffer.put(intKey);
+//				byte[] key = byteBuffer.array();
+//				byte[] decryptedPayload = XXTEA.decrypt(encryptedPayload, key);
+				
+				byte[] decryptedPayload = encryptedPayload;
 				logger.info(Arrays.toString(decryptedPayload));
 				
 				byte proto = decryptedPayload[0];
@@ -74,8 +94,9 @@ public class PcsProxy implements Runnable {
 				short crc = Functions.byteArraytoShort(new byte[] {decryptedPayload[14], decryptedPayload[15]});
 				logger.info(proto + ", " + time + ", " + seq + ", " + from + ", " + data + ", " + prop + ", " + crc);
 				
-				//TODO: sending data
-				while(!WifiConnection.connectToWifi());
+//				while(!WifiConnection.connectToWifi());
+				
+				d.put(seq, String.valueOf(time));
 				
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);

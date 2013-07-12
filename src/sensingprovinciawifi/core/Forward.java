@@ -4,8 +4,8 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 import sensingprovinciawifi.wsn.receive.Data;
+import sensingprovinciawifi.wsn.send.JSONMessage;
 import sensingprovinciawifi.wsn.send.Message;
-import sensingprovinciawifi.wsn.send.POSTMessage;
 
 
 public class Forward implements Runnable {
@@ -37,7 +37,7 @@ public class Forward implements Runnable {
 			
 			try {
 
-				Message msg= (Message) new POSTMessage(values);
+				Message msg= (Message) new JSONMessage(values);
 				
 				msg.send();
 				
