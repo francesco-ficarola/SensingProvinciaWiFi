@@ -40,4 +40,11 @@ public class Functions {
 		buffer.order(ByteOrder.BIG_ENDIAN); // it depends on the platform
 		return buffer.getInt();
 	}
+	
+	public static long byteArraytoLong(byte[] data) {
+		ByteBuffer buffer = ByteBuffer.wrap(data);
+//		buffer.order(ByteOrder.LITTLE_ENDIAN);
+		buffer.order(ByteOrder.BIG_ENDIAN); // it depends on the platform
+		return buffer.getLong();
+	}
 }
