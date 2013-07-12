@@ -28,8 +28,6 @@ public class SensingProvinciaWifi {
 		logger.info("PCS Proxy initialization ...");
 		new PcsProxy();
 		
-		//System.out.println("Connected to wifi");
-		//create an interface listening the default port instantiated by MOTECOM
 	}
 
 }
