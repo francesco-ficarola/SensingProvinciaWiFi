@@ -1,4 +1,4 @@
-package sensingprovinciawifi.wsn.send;
+package sensingprovinciawifi.core.send;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;

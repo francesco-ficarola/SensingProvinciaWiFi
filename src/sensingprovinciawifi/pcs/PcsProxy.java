@@ -20,7 +20,10 @@ public class PcsProxy implements Runnable {
 	
 	private static Logger logger = Logger.getLogger(PcsProxy.class);
 	
-	public PcsProxy() {
+	private boolean wifi;
+	
+	public PcsProxy(boolean wifi) {
+		this.wifi = wifi;
 		new Thread(this).start();
 	}
 
@@ -54,17 +57,23 @@ public class PcsProxy implements Runnable {
 			try {
 				serverSocket.receive(receivePacket);
 				byte[] rawDataPacket = receivePacket.getData();
-				logger.info("Raw Packet: " + Arrays.toString(rawDataPacket));
+				logger.debug("Raw Packet: " + Arrays.toString(rawDataPacket));
+				
+				
+				/**
+				 * uint8_t (C) = short (java), uint16_t (C) = int (java), uint32_t (C) = long (java)
+				 * Java needs double-sized primitives because they are all signed.
+				 */
 				
 				/** First 16th bytes - Reader data */
-				short eCrc = Functions.byteArraytoShort(new byte[] {rawDataPacket[0], rawDataPacket[1]});
-				byte eProto = rawDataPacket[2];
-				byte eInterface = rawDataPacket[3];
-				short eReader_id = Functions.byteArraytoShort(new byte[] {rawDataPacket[4], rawDataPacket[5]});
-				short eSize = Functions.byteArraytoShort(new byte[] {rawDataPacket[6], rawDataPacket[7]});
-				int eSequence = Functions.byteArraytoInt(new byte[] {rawDataPacket[8], rawDataPacket[9], rawDataPacket[10], rawDataPacket[11]});
-				int eTimestamp = Functions.byteArraytoInt(new byte[] {rawDataPacket[12], rawDataPacket[13], rawDataPacket[14], rawDataPacket[15]});
-				logger.debug("Reader fields: " + eCrc + ", " + eProto + ", " + eInterface + ", " + eReader_id + ", " + eSize + ", " + eSequence + ", " + eTimestamp);
+				int eCrc = Functions.byteArraytoInt(new byte[] {0, 0, rawDataPacket[0], rawDataPacket[1]});
+				short eProto = Functions.byteArraytoShort(new byte[] {0, rawDataPacket[2]});
+				short eInterface = Functions.byteArraytoShort(new byte[] {0, rawDataPacket[3]});
+				int eReaderID = Functions.byteArraytoInt(new byte[] {0, 0, rawDataPacket[4], rawDataPacket[5]});
+				int eSize = Functions.byteArraytoInt(new byte[] {0, 0, rawDataPacket[6], rawDataPacket[7]});
+				long eSequence = Functions.byteArraytoLong(new byte[] {0, 0, 0, 0, rawDataPacket[8], rawDataPacket[9], rawDataPacket[10], rawDataPacket[11]});
+				long eTimestamp = Functions.byteArraytoLong(new byte[] {0, 0, 0, 0, rawDataPacket[12], rawDataPacket[13], rawDataPacket[14], rawDataPacket[15]});
+				logger.info("Reader fields: " + eCrc + ", " + eProto + ", " + eInterface + ", " + eReaderID + ", " + eSize + ", " + eSequence + ", " + eTimestamp);
 				
 				/** Second 16th bytes - Payload encrypted by XXTEA */
 				byte[] encryptedPayload = Arrays.copyOfRange(rawDataPacket, 16, rawDataPacket.length);
@@ -77,7 +86,6 @@ public class PcsProxy implements Runnable {
 				byte[] decryptedPayload = XXTEA.decrypt(encryptedPayload, key);				
 				logger.info("Decrypted payload: " + Arrays.toString(decryptedPayload));
 				
-				
 				/**
 				 * DTN Message:
 				 * uint8_t proto;
@@ -87,11 +95,7 @@ public class PcsProxy implements Runnable {
 				 * uint16_t data;
 				 * uint8_t prop;
 				 * uint16_t crc;
-				 * 
-				 * uint8_t (C) = short (java), uint16_t (C) = int (java), uint32_t (C) = long (java)
-				 * Java needs double-sized primitives because they are all signed.
 				 */ 
-				
 				short proto = Functions.byteArraytoShort(new byte[] {0, decryptedPayload[0]});
 				long time = Functions.byteArraytoLong(new byte[] {0, 0, 0, 0, decryptedPayload[1], decryptedPayload[2], decryptedPayload[3], decryptedPayload[4]});
 				long seq = Functions.byteArraytoLong(new byte[] {0, 0, 0, 0, decryptedPayload[5], decryptedPayload[6], decryptedPayload[7], decryptedPayload[8]});
@@ -99,10 +103,19 @@ public class PcsProxy implements Runnable {
 				int data = Functions.byteArraytoInt(new byte[] {0, 0, decryptedPayload[11], decryptedPayload[12]});
 				short prop = Functions.byteArraytoShort(new byte[] {0, decryptedPayload[13]});
 				int crc = Functions.byteArraytoInt(new byte[] {0, 0, decryptedPayload[14], decryptedPayload[15]});
-				logger.info("Payload fields: " + proto + ", " + time + ", " + Long.toHexString(seq).toUpperCase() + ", " + Integer.toHexString(from).toUpperCase() + ", " + data + ", " + prop + ", " + crc);
 				
-				while(!WifiConnection.connectToWifi());
-				d.put(from, String.valueOf(time));
+				byte[] payloadWithoutCrc = Arrays.copyOfRange(decryptedPayload, 0, 14);
+				if(Functions.crc16(payloadWithoutCrc) == crc) {
+					logger.info("Payload fields: " + proto + ", " + time + ", " + Long.toHexString(seq).toUpperCase() + ", " + Integer.toHexString(from).toUpperCase() + ", " + data + ", " + prop + ", " + crc + "\n");
+					
+					if(wifi) {
+						while(!WifiConnection.connectToWifi());
+					}
+					d.put(from, String.valueOf(time));
+					
+				} else{
+					logger.warn("Rejecting packet from" + eReaderID + "on CRC.\n");
+				}
 				
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);

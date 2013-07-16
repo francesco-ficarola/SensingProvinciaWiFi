@@ -1,4 +1,4 @@
-package sensingprovinciawifi.wsn.send;
+package sensingprovinciawifi.core.send;
 
 public interface Message {
 

@@ -26,4 +26,17 @@ public class Functions {
 		return buffer.getLong();
 	}
 	
+	public static int crc16(byte[] data) {
+		int mask = 0xFFFF;
+		int crc = 0xFFFF;
+		for (byte b : data) {
+			short x = (short) (b & 0xFF);
+			crc = (crc >> 8) | ((crc << 8) & mask);
+	        crc = crc ^ x;
+	        crc = crc ^ ((crc & 0xff) >> 4);
+	        crc = crc ^ ((crc << 12) & mask);
+	        crc = crc ^ (((crc & 0xff) << 5) & mask);
+		}
+		return crc;
+	}
 }

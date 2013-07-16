@@ -16,12 +16,12 @@ public class ReceiveData implements Runnable {
 	
 	private static PacketSource reader;
 	private static Data data;
-	private String[] param;
+	private String source;
 	
-	public ReceiveData(Data d, String[] args)
+	public ReceiveData(Data d, String source)
 	{
+		this.source = source;
 		data=d;
-		param=args;
 		new Thread(this).start();
 	}
 	
@@ -37,14 +37,14 @@ public class ReceiveData implements Runnable {
 		    logger.error("Invalid packet source (check your MOTECOM environment variable)");
 		    System.exit(0);
 		}
-		else
-			logger.info("Connection established with "+ reader.getName() +".");
 	}
 	
 	public static void receive()
 	{
 		try {
 			  reader.open(PrintStreamMessenger.err);
+			  logger.info("Connection established with "+ reader.getName() +".");
+			  
 			  for (;;) 
 			  {
 			    byte[] packet = reader.readPacket();
@@ -78,10 +78,6 @@ public class ReceiveData implements Runnable {
 
 	@Override
 	public void run() {
-		String source = "serial@/dev/ttyUSB0:telos";
-		if(param.length > 0) {
-			source = param[0];
-		}
 		USBconnection(source);
 		receive();
 	}
