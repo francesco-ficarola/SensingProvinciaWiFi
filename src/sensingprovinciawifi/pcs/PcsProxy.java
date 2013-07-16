@@ -57,7 +57,7 @@ public class PcsProxy implements Runnable {
 			try {
 				serverSocket.receive(receivePacket);
 				byte[] rawDataPacket = receivePacket.getData();
-				logger.debug("Raw Packet: " + Arrays.toString(rawDataPacket));
+				logger.debug("PCS Raw Data Packet: " + Arrays.toString(rawDataPacket));
 				
 				
 				/**
