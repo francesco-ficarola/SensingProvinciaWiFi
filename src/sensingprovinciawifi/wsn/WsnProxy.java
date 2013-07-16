@@ -4,9 +4,9 @@ import java.io.*;
 
 import org.apache.log4j.Logger;
 
-import sensingprovinciawifi.core.Forward;
+import sensingprovinciawifi.core.Data;
 import sensingprovinciawifi.core.WifiConnection;
-import sensingprovinciawifi.wsn.receive.Data;
+import sensingprovinciawifi.core.send.Forward;
 import sensingprovinciawifi.wsn.receive.ReceiveData;
 
 

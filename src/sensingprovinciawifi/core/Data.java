@@ -1,4 +1,4 @@
-package sensingprovinciawifi.wsn.receive;
+package sensingprovinciawifi.core;
 import java.util.HashMap;
 
 

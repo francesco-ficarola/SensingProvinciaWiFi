@@ -7,6 +7,8 @@ import java.util.GregorianCalendar;
 
 import org.apache.log4j.Logger;
 
+import sensingprovinciawifi.core.Data;
+
 
 import net.tinyos.packet.*;
 import net.tinyos.util.*;
