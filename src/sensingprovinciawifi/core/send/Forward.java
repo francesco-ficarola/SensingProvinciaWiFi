@@ -1,11 +1,9 @@
-package sensingprovinciawifi.core;
+package sensingprovinciawifi.core.send;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-import sensingprovinciawifi.core.send.JSONMessage;
-import sensingprovinciawifi.core.send.Message;
-import sensingprovinciawifi.wsn.receive.Data;
+import sensingprovinciawifi.core.Data;
 
 
 public class Forward implements Runnable {

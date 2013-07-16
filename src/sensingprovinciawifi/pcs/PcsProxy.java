@@ -9,12 +9,12 @@ import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
-import sensingprovinciawifi.core.Forward;
+import sensingprovinciawifi.core.Data;
 import sensingprovinciawifi.core.WifiConnection;
+import sensingprovinciawifi.core.send.Forward;
 import sensingprovinciawifi.pcs.utils.Functions;
 import sensingprovinciawifi.pcs.utils.PcsConstants;
 import sensingprovinciawifi.pcs.utils.XXTEA;
-import sensingprovinciawifi.wsn.receive.Data;
 
 public class PcsProxy implements Runnable {
 	
