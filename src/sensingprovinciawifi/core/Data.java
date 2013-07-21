@@ -5,21 +5,21 @@ import java.util.Map;
 
 public class Data {
 
-	private Map<String, Integer> data;
+	private Map<String, Object> data;
 
 	public Data()
 	{
-		data = new HashMap<String, Integer>();
+		data = new HashMap<String, Object>();
 	}
 	
-	synchronized public void put(String time, int value)
+	synchronized public void put(String time, Object value)
 	{
 		data.put(time, value);
 	}
 	
-	synchronized public Map<String, Integer> get()
+	synchronized public Map<String, Object> get()
 	{
-		Map<String,Integer> ret = new HashMap<String, Integer>(data);
+		Map<String, Object> ret = new HashMap<String, Object>(data);
 		data.clear();
 		return ret;
 	}

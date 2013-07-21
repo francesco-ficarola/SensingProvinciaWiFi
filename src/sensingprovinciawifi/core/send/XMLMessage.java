@@ -24,21 +24,21 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import sensingprovinciawifi.core.WifiConnection;
+import sensingprovinciawifi.core.Connections;
 
 public class XMLMessage implements Message {
 
 	private Logger logger = Logger.getLogger(getClass());
 	
-	private Map<String,Integer> data;
+	private Map<String, Object> data;
 	private HttpURLConnection connectionToDb;
 	private File f;
 	
-	public XMLMessage(Map<String, Integer>  values) throws IOException
+	public XMLMessage(Map<String, Object>  values) throws IOException
 	{
 		this.f = new File("xmldata.xml");
 		this.data = values;
-		this.connectionToDb = WifiConnection.connectToServer();
+		this.connectionToDb = Connections.connectToServer();
 		createxml();
 	}
 	

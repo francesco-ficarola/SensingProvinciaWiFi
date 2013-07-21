@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import sensingprovinciawifi.core.WifiConnection;
+import sensingprovinciawifi.core.Connections;
 
 import com.google.gson.Gson;
 
@@ -17,13 +17,15 @@ public class JSONMessage implements Message {
 	
 	private Logger logger = Logger.getLogger(getClass());
 
-	private Map<String,Integer> data;
+	private Map<String, Object> data;
 	private HttpURLConnection connectionToDb;
+	private Gson gson;
 	
-	public JSONMessage(Map<String, Integer> values) throws IOException 
+	public JSONMessage(Map<String, Object> values) throws IOException 
 	{
+		this.gson = new Gson();
 		this.data = values;
-		this.connectionToDb = WifiConnection.connectToServer();
+		this.connectionToDb = Connections.connectToServer();
 	}
 	
 	@Override
@@ -31,7 +33,7 @@ public class JSONMessage implements Message {
 	{
 		connectionToDb.setRequestProperty("Content-Type", "application/json");
 		
-		String json = new Gson().toJson(data);
+		String json = gson.toJson(data);
 		
 		OutputStreamWriter forward = new OutputStreamWriter(connectionToDb.getOutputStream());
 		forward.write(json);

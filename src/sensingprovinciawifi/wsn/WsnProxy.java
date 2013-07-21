@@ -5,7 +5,7 @@ import java.io.*;
 import org.apache.log4j.Logger;
 
 import sensingprovinciawifi.core.Data;
-import sensingprovinciawifi.core.WifiConnection;
+import sensingprovinciawifi.core.Connections;
 import sensingprovinciawifi.core.send.Forward;
 import sensingprovinciawifi.wsn.receive.ReceiveData;
 
@@ -38,7 +38,7 @@ public class WsnProxy implements Runnable {
 				Thread.sleep(6000);		//every 6 seconds check the connectivity
 				
 				if(wifi) {
-					while(!WifiConnection.connectToWifi());
+					while(!Connections.connectToWifi());
 				}
 				
 			} catch (IOException e) {

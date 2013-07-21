@@ -12,16 +12,16 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import sensingprovinciawifi.core.WifiConnection;
+import sensingprovinciawifi.core.Connections;
 
 public class POSTMessage implements Message {
 	
 	private Logger logger = Logger.getLogger(getClass());
 
 	private HttpURLConnection connectionToDb;
-	private Map<String,Integer> data;	
+	private Map<String, Object> data;	
 	
-	public POSTMessage(Map<String, Integer> values) throws IOException {
+	public POSTMessage(Map<String, Object> values) throws IOException {
 		this.data = values;
 	}
 	
@@ -29,14 +29,14 @@ public class POSTMessage implements Message {
 	public void send() throws Exception 
 	{
 		Set<String> time= data.keySet();
-		Collection<Integer> value= data.values();
+		Collection<Object> value= data.values();
 		
-		Iterator<String> t= time.iterator();
-		Iterator<Integer> v= value.iterator();
+		Iterator<String> t = time.iterator();
+		Iterator<Object> v = value.iterator();
 		
 		while(t.hasNext())
 		{
-			connectionToDb=WifiConnection.connectToServer();
+			connectionToDb=Connections.connectToServer();
 			OutputStreamWriter forward = new OutputStreamWriter(connectionToDb.getOutputStream());
 			
 			String send=URLEncoder.encode("time", "UTF-8") + "=" + URLEncoder.encode(t.next(), "UTF-8");

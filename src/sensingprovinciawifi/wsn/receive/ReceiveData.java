@@ -3,6 +3,7 @@ package sensingprovinciawifi.wsn.receive;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import org.apache.log4j.Logger;
@@ -20,11 +21,15 @@ public class ReceiveData implements Runnable {
 	private PacketSource reader;
 	private Data data;
 	private String source;
+	private Calendar gc;
+	private SimpleDateFormat sdf;
 
 	public ReceiveData(Data d, String source)
 	{
 		this.source = source;
 		this.data = d;
+		this.gc = GregorianCalendar.getInstance();
+		this.sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		new Thread(this).start();
 	}
 
@@ -51,6 +56,7 @@ public class ReceiveData implements Runnable {
 			for (;;) 
 			{
 				byte[] packet = reader.readPacket();
+				long timeMilli = System.currentTimeMillis();
 				logger.info("WSN Raw Data Packet: " + Arrays.toString(packet));
 
 				/* * * * * * * * * * * * * * * * * * * * * * * * */
@@ -68,9 +74,8 @@ public class ReceiveData implements Runnable {
 				if(packet.length > 8) {			//check correct structure of the message
 					if(packet.length >= 10)		//check first argument of the payload
 					{
-						GregorianCalendar gc = new GregorianCalendar();
-						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 						int value = 256 * (int) packet[8] + (int) packet[9];
+						gc.setTimeInMillis(timeMilli);
 						data.put(sdf.format(gc.getTime()), value);
 					}
 				}

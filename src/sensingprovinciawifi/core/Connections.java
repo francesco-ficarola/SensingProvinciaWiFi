@@ -12,9 +12,9 @@ import java.net.URLEncoder;
 
 import org.apache.log4j.Logger;
 
-public class WifiConnection {
+public class Connections {
 	
-	private static Logger logger = Logger.getLogger(WifiConnection.class);
+	private static Logger logger = Logger.getLogger(Connections.class);
 	
 	public static boolean connectToWifi() throws IOException 
 	{

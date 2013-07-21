@@ -29,7 +29,7 @@ public class Forward implements Runnable {
 				logger.error(e.getMessage(), e);
 			}
 			
-			Map<String,Integer> values = data.get();
+			Map<String, Object> values = data.get();
 			
 			if(values.isEmpty()) continue;
 			

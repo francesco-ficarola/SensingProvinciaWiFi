@@ -5,12 +5,15 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import org.apache.log4j.Logger;
 
 import sensingprovinciawifi.core.Data;
-import sensingprovinciawifi.core.WifiConnection;
+import sensingprovinciawifi.core.Connections;
 import sensingprovinciawifi.core.send.Forward;
 import sensingprovinciawifi.pcs.utils.Functions;
 import sensingprovinciawifi.pcs.utils.PcsConstants;
@@ -21,9 +24,13 @@ public class PcsProxy implements Runnable {
 	private static Logger logger = Logger.getLogger(PcsProxy.class);
 	
 	private boolean wifi;
+	private Calendar gc;
+	private SimpleDateFormat sdf;
 	
 	public PcsProxy(boolean wifi) {
 		this.wifi = wifi;
+		this.gc = GregorianCalendar.getInstance();
+		this.sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		new Thread(this).start();
 	}
 
@@ -54,6 +61,8 @@ public class PcsProxy implements Runnable {
 		
 		while(true) {
 			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+			long timeMilli = System.currentTimeMillis();
+			
 			try {
 				serverSocket.receive(receivePacket);
 				byte[] rawDataPacket = receivePacket.getData();
@@ -109,9 +118,10 @@ public class PcsProxy implements Runnable {
 					logger.info("Payload fields: " + proto + ", " + time + ", " + Long.toHexString(seq).toUpperCase() + ", " + Integer.toHexString(from).toUpperCase() + ", " + data + ", " + prop + ", " + crc + "\n");
 					
 					if(wifi) {
-						while(!WifiConnection.connectToWifi());
+						while(!Connections.connectToWifi());
 					}
-					d.put(String.valueOf(time), from);
+					gc.setTimeInMillis(timeMilli);
+					d.put(sdf.format(gc.getTime()), Long.toHexString(seq).toUpperCase());
 					
 				} else{
 					logger.warn("Rejecting packet from" + eReaderID + "on CRC.\n");

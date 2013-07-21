@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import sensingprovinciawifi.core.WifiConnection;
+import sensingprovinciawifi.core.Connections;
 import sensingprovinciawifi.pcs.PcsProxy;
 import sensingprovinciawifi.wsn.WsnProxy;
 
@@ -23,7 +23,7 @@ public class SensingProvinciaWifi {
 		if(wifi) {
 			logger.info("Connection to captiveportal.provinciawifi.it ...");
 			try {
-				WifiConnection.connectToWifi();
+				Connections.connectToWifi();
 				logger.info("Connection established!");
 			} catch (IOException e) {
 				logger.error("Connection failed: " + e.getMessage(), e);
