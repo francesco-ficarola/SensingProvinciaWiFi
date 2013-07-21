@@ -111,7 +111,7 @@ public class PcsProxy implements Runnable {
 					if(wifi) {
 						while(!WifiConnection.connectToWifi());
 					}
-					d.put(from, String.valueOf(time));
+					d.put(String.valueOf(time), from);
 					
 				} else{
 					logger.warn("Rejecting packet from" + eReaderID + "on CRC.\n");

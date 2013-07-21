@@ -1,5 +1,5 @@
 package sensingprovinciawifi.core.send;
-import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -29,7 +29,7 @@ public class Forward implements Runnable {
 				logger.error(e.getMessage(), e);
 			}
 			
-			HashMap<String,Integer> values = data.get();
+			Map<String,Integer> values = data.get();
 			
 			if(values.isEmpty()) continue;
 			

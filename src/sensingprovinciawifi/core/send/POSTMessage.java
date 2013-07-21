@@ -6,8 +6,8 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -18,10 +18,12 @@ public class POSTMessage implements Message {
 	
 	private Logger logger = Logger.getLogger(getClass());
 
-	private static HttpURLConnection connectionToDb;
-	private static HashMap<String,Integer> data;	
+	private HttpURLConnection connectionToDb;
+	private Map<String,Integer> data;	
 	
-	public POSTMessage(HashMap<String,Integer> d) throws IOException {data=d;}
+	public POSTMessage(Map<String, Integer> values) throws IOException {
+		this.data = values;
+	}
 	
 	@Override
 	public void send() throws Exception 

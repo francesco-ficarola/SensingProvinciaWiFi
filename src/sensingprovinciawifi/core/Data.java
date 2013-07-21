@@ -1,27 +1,26 @@
 package sensingprovinciawifi.core;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class Data {
 
-	public HashMap<String,Integer> data;
+	private Map<String, Integer> data;
 
 	public Data()
 	{
-		data = new HashMap<String,Integer>();
+		data = new HashMap<String, Integer>();
 	}
 	
-	synchronized public void put(int value,String time)
+	synchronized public void put(String time, int value)
 	{
 		data.put(time, value);
 	}
 	
-	@SuppressWarnings("unchecked")
-	synchronized public HashMap<String, Integer> get()
+	synchronized public Map<String, Integer> get()
 	{
-		HashMap<String,Integer> ret = (HashMap<String, Integer>) data.clone();
+		Map<String,Integer> ret = new HashMap<String, Integer>(data);
 		data.clear();
 		return ret;
-		
 	}
 }

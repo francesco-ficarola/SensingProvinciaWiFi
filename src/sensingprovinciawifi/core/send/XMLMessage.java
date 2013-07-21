@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -30,18 +30,19 @@ public class XMLMessage implements Message {
 
 	private Logger logger = Logger.getLogger(getClass());
 	
-	private static HashMap<String,Integer> data;
-	private static HttpURLConnection connectionToDb;
-	private static File f=new File("xmldata.xml");
+	private Map<String,Integer> data;
+	private HttpURLConnection connectionToDb;
+	private File f;
 	
-	public XMLMessage(HashMap<String,Integer> d) throws IOException
+	public XMLMessage(Map<String, Integer>  values) throws IOException
 	{
-		data=d;
-		connectionToDb= WifiConnection.connectToServer();
+		this.f = new File("xmldata.xml");
+		this.data = values;
+		this.connectionToDb = WifiConnection.connectToServer();
 		createxml();
 	}
 	
-	private static void createxml()
+	private void createxml()
 	{
 		DocumentBuilderFactory dbfactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = null;
@@ -49,8 +50,7 @@ public class XMLMessage implements Message {
 		try {
 			builder = dbfactory.newDocumentBuilder();
 		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		
 		Document document = builder.newDocument();
@@ -79,7 +79,7 @@ public class XMLMessage implements Message {
 		try {
 			transformer = transformerFactory.newTransformer();
 		} catch (TransformerConfigurationException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 		DOMSource source = new DOMSource(document);
 		StreamResult result = new StreamResult(f);
@@ -87,7 +87,7 @@ public class XMLMessage implements Message {
 		try {
 			transformer.transform(source, result);
 		} catch (TransformerException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 		}
 	}
 	

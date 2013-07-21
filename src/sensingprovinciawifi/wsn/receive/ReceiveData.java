@@ -71,7 +71,7 @@ public class ReceiveData implements Runnable {
 						GregorianCalendar gc = new GregorianCalendar();
 						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 						int value = 256 * (int) packet[8] + (int) packet[9];
-						data.put(value, sdf.format(gc.getTime()));
+						data.put(sdf.format(gc.getTime()), value);
 					}
 				}
 			}

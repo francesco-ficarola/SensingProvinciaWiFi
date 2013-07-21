@@ -77,8 +77,8 @@ public class SensingProvinciaWifi {
 	private static void usage() {
 		System.out.println("\nTARGET SPECIFICATION:");
 		System.out.println("-h or --help: Getting this help.");
-		System.out.println("-wifi: If you need to connect to a ProvinciaWiFi Access Point.");
-		System.out.println("-comm <source>: The TelosB serial port.\n");
+		System.out.println("-wifi: If you need to connect to the ProvinciaWiFi AP.");
+		System.out.println("-comm <source>: The TelosB serial port [default: serial@/dev/ttyUSB0:telos].\n");
 	}
 
 }
