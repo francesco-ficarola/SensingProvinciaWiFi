@@ -1,17 +1,11 @@
 SensingProvinciaWiFi
 ====================
 
-Developers: *Tommaso Arzilli*, *Francesco Ficarola*, *Khalil Massri*
-
-About
-------------------
-This software permits to collect data from sensors networks and to forward them to a dedicated server on internet, 
-passing through a Provinciawifi access point. It implements an authentication through a Captive Portal for achieving
-internet connection and retrieves data from a mote plugged on USB/Ethernet port of a PC.
+This software allows to collect data from Wireless Sensors Networks and People-Centric Sensing systems and, then, it forwards all messages to a dedicated server on the Internet passing through a Provinciawifi Access Point. It implements an authentication mechanism using Captive Portal so as to achieve Internet connections and retrieve data from gateway devices plugged on PC's USB/Ethernet ports.
 
 License
 ------------------
-Copyright 2012 Tommaso Arzilli, Francesco Ficarola, Khalil Massri
+Copyright 2012 Francesco Ficarola, Tommaso Arzilli, Khalil Massri
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
